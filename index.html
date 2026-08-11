@@ -14,12 +14,14 @@ body{font-family:'Noto Sans KR',sans-serif;
   min-height:100vh;padding:0 0 50px;color:#2c2015;}
 
 /* ---------- HERO ---------- */
-.archive-btn{position:fixed;top:8px;right:8px;z-index:999;
+.fixed-btns{position:fixed;top:8px;right:8px;z-index:999;display:flex;flex-direction:column;gap:6px;align-items:flex-end;}
+.archive-btn{
   background:rgba(255,251,240,0.85);border:1.5px solid #7a1220;border-radius:20px;
   padding:4px 9px;font-size:9.5px;font-weight:700;color:#7a1220;text-decoration:none;
   backdrop-filter:blur(6px);box-shadow:0 2px 8px rgba(110,15,22,0.25),0 0 0 2px rgba(201,162,39,0.35);
-  white-space:nowrap;font-family:'Noto Sans KR',sans-serif;}
+  white-space:nowrap;font-family:'Noto Sans KR',sans-serif;cursor:pointer;}
 .archive-btn:hover{background:#fff;}
+.archive-btn:disabled{opacity:0.6;cursor:default;}
 .hero{position:relative;padding:34px 16px 26px;text-align:center;overflow:hidden;}
 .hero::before{content:'';position:absolute;inset:0;
   background:radial-gradient(circle at 18% 20%,rgba(255,250,235,0.55),transparent 42%),
@@ -213,7 +215,8 @@ body{font-family:'Noto Sans KR',sans-serif;
 .footer b{color:#7a1220;}
 
 @media(min-width:768px){
-  .archive-btn{top:16px;right:16px;padding:7px 14px;font-size:12px;}
+  .fixed-btns{top:16px;right:16px;gap:8px;}
+  .archive-btn{padding:7px 14px;font-size:12px;}
   .brush-title{font-size:32px;}
   .title-kr{font-size:46px;letter-spacing:8px;}
   .fb2{font-size:12px;padding:6px 15px;}
@@ -253,7 +256,10 @@ body{font-family:'Noto Sans KR',sans-serif;
 </style>
 </head>
 <body>
-<a href="https://chichiandpopo.github.io/stage_archive/" target="_blank" class="archive-btn">🎭 관극 아카이브</a>
+<div class="fixed-btns">
+  <a href="https://chichiandpopo.github.io/stage_archive/" target="_blank" class="archive-btn">🎭 관극 아카이브</a>
+  <button class="archive-btn" id="saveSettlementBtn" onclick="saveSettlementImage()">📸 정산판 저장</button>
+</div>
 
 <div class="hero">
   <div class="hero-inner">
@@ -363,6 +369,7 @@ body{font-family:'Noto Sans KR',sans-serif;
 <div class="row" data-sid="1011-1800" data-tb="yangjiwon" data-mc="kimkyungsoo" data-pl="jeongsangyun"><div class="cell date">10월 11일</div><div class="cell day day-sun">일</div><div class="cell time">18:00</div><div class="cell"><span class="role-pill badge-yangjiwon">양지원</span></div><div class="cell actor-cell"><span class="role-pill badge-kimkyungsoo">김경수</span></div><div class="cell actor-cell"><span class="role-pill badge-jeongsangyun">정상윤</span></div><div class="cell seat-cell"><div class="seat-input-row"><input class="seat-input" inputmode="text" enterkeyhint="done" autocomplete="off" autocapitalize="characters" id="inp-1011-1800"><button onclick="confirmSeat('1011-1800')" class="seat-ok-btn">✓</button></div><div class="seat-tags" id="tags-1011-1800"></div></div><div class="cell copy-cell"><button class="copy-btn" onclick="copyCast('1011-1800')" title="복사">❤️</button></div></div>
 </div>
 
+<div id="captureArea">
 <div class="settle-title">2026년 스타크로스드 정산</div>
 <div class="counting-section">
 <div class="cgl">티볼트</div>
@@ -391,6 +398,7 @@ body{font-family:'Noto Sans KR',sans-serif;
   <div id="seatMapInner"></div>
   <div class="seat-legend" id="seatLegend"><span style="font-size:11px;color:#8a6d4c;">좌석을 입력하면 여기에 표시됩니다</span></div>
 </div>
+</div>
 
 <div style="max-width:720px;margin:16px auto 4px;display:flex;gap:6px;justify-content:center;flex-wrap:wrap;">
   <button onclick="exportData()" style="padding:6px 16px;background:rgba(255,251,240,0.6);border:1px solid rgba(90,60,30,0.2);border-radius:20px;font-size:11px;font-weight:700;color:#7a1220;cursor:pointer;font-family:inherit;">💾 내 데이터 저장</button>
@@ -406,6 +414,7 @@ body{font-family:'Noto Sans KR',sans-serif;
 
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 
 /* ================= SAFE STORAGE (fallback if localStorage is blocked, e.g. some file:// contexts) ================= */
@@ -453,6 +462,30 @@ document.querySelectorAll('.row[data-sid]').forEach(r=>{
 });
 
 const ACTOR={jeongdonghwa:'정동화',parkjeongbok:'박정복',yangjiwon:'양지원',kimkyungsoo:'김경수',kimchanho:'김찬호',shinjuhyup:'신주협',jeongsangyun:'정상윤',josungyun:'조성윤'};
+
+/* ================= SAVE SETTLEMENT AS JPG ================= */
+async function saveSettlementImage(){
+  const btn=document.getElementById('saveSettlementBtn');
+  const el=document.getElementById('captureArea');
+  if(!el){alert('정산 영역을 찾을 수 없어요.');return;}
+  if(typeof html2canvas==='undefined'){alert('이미지 저장 기능을 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해주세요.');return;}
+  const origText=btn.textContent;
+  btn.disabled=true; btn.textContent='📸 저장 중...';
+  try{
+    const canvas=await html2canvas(el,{backgroundColor:'#f3ecd8',scale:2,useCORS:true});
+    const jpgUrl=canvas.toDataURL('image/jpeg',0.92);
+    const a=document.createElement('a');
+    a.href=jpgUrl;
+    a.download='스타크로스드_정산판.jpg';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }catch(e){
+    alert('이미지 저장에 실패했어요 ㅠㅠ 다시 시도해주세요.');
+  }finally{
+    btn.disabled=false; btn.textContent=origText;
+  }
+}
 
 function exportData(){
   const rowsData=[];

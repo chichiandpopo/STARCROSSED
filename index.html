@@ -148,6 +148,10 @@ body{font-family:'Noto Sans KR',sans-serif;
   display:inline-flex;align-items:center;gap:2px;color:white;}
 
 /* ---------- counting ---------- */
+#captureArea{background:linear-gradient(160deg,#f8f1e0 0%,#f0e3c8 55%,#ecdcbd 100%);
+  border:2px solid #7a1220;border-radius:14px;
+  box-shadow:0 0 0 4px rgba(201,162,39,0.55),0 0 0 5px rgba(110,15,22,0.4);
+  padding:18px 12px 22px;margin-top:10px;}
 .settle-title{text-align:center;font-size:16px;font-weight:700;color:#2c2015;letter-spacing:2px;
   margin:26px 0 10px;font-family:'Song Myung',serif;}
 .settle-title::before,.settle-title::after{content:'❦';color:#7a1220;font-size:13px;margin:0 10px;}
@@ -156,9 +160,9 @@ body{font-family:'Noto Sans KR',sans-serif;
 .counting-box{display:flex;gap:4px;justify-content:center;flex-wrap:wrap;margin-bottom:2px;}
 .counting-box.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;max-width:400px;margin:0 auto 2px;}
 .counting-box.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:5px;max-width:270px;margin:0 auto 2px;}
-.count-card{flex:1;min-width:60px;max-width:95px;background:rgba(255,251,240,0.85);border-radius:8px;
-  padding:6px 3px;text-align:center;border:1px solid rgba(110,15,22,0.28);
-  box-shadow:inset 0 0 0 1px rgba(201,162,39,0.25);}
+.count-card{flex:1;min-width:60px;max-width:95px;background:#fdf7e9;border-radius:8px;
+  padding:6px 3px;text-align:center;border:1.5px solid #7a1220;
+  box-shadow:0 0 0 2px rgba(201,162,39,0.45);}
 .counting-box.grid3 .count-card,.counting-box.grid2 .count-card{flex:none;min-width:0;max-width:none;width:auto;}
 .count-card{transition:opacity 0.15s,filter 0.15s;}
 .count-card.dim{opacity:0.32;filter:grayscale(70%);}
@@ -166,17 +170,17 @@ body{font-family:'Noto Sans KR',sans-serif;
 .count-card .cnt-num{font-size:19px;font-weight:700;line-height:1;}
 .count-card .cnt-label{font-size:8px;color:#8a6d4c;}
 .cnt-total-box{display:flex;justify-content:center;margin:6px 0;}
-.cnt-total-card{background:linear-gradient(180deg,rgba(122,18,32,0.14),rgba(122,18,32,0.06));border-radius:10px;padding:7px 26px;text-align:center;
-  border:1.5px solid #7a1220;box-shadow:0 0 0 2px rgba(201,162,39,0.4);}
+.cnt-total-card{background:linear-gradient(160deg,#f3ddd6,#f9f0e2);border-radius:10px;padding:7px 26px;text-align:center;
+  border:2px solid #7a1220;box-shadow:0 0 0 3px rgba(201,162,39,0.5);}
 .cnt-total-card .cnt-name{font-size:11px;font-weight:700;color:#7a1220;margin-bottom:1px;}
 .cnt-total-card .cnt-num{font-size:27px;font-weight:700;color:#7a1220;line-height:1;}
 .cnt-total-card .cnt-label{font-size:10px;color:#7a6a48;}
 .cnt-total-of{font-size:0.55em;font-weight:500;color:#999;margin-left:1px;}
 
 /* ---------- seat map ---------- */
-.seat-map-section{max-width:740px;margin:14px -8px 0;background:rgba(255,251,240,0.85);
-  border-radius:12px;padding:14px 2px 16px;border:1.5px solid rgba(110,15,22,0.35);
-  box-shadow:inset 0 0 0 1px rgba(201,162,39,0.35);}
+.seat-map-section{max-width:740px;margin:14px -8px 0;background:#fdf7e9;
+  border-radius:12px;padding:14px 2px 16px;border:1.5px solid #7a1220;
+  box-shadow:0 0 0 2px rgba(201,162,39,0.45);}
 .seat-map-title{text-align:center;font-size:14px;font-weight:700;color:#7a1220;margin-bottom:8px;
   letter-spacing:1px;font-family:'Song Myung',serif;}
 .stage-box{background:#2c2015;color:#e8ded0;border-radius:6px;text-align:center;font-size:11px;
@@ -472,7 +476,7 @@ async function saveSettlementImage(){
   const origText=btn.textContent;
   btn.disabled=true; btn.textContent='📸 저장 중...';
   try{
-    const canvas=await html2canvas(el,{backgroundColor:'#f3ecd8',scale:2,useCORS:true});
+    const canvas=await html2canvas(el,{backgroundColor:'#f0e3c8',scale:2,useCORS:true});
     const jpgUrl=canvas.toDataURL('image/jpeg',0.92);
     const a=document.createElement('a');
     a.href=jpgUrl;

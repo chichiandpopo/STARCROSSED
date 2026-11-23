@@ -168,6 +168,8 @@ body{font-family:'Noto Sans KR',sans-serif;
 .counting-box.grid3 .count-card,.counting-box.grid2 .count-card,.counting-box.grid4 .count-card{flex:none;min-width:0;max-width:104px;width:100%;}
 .count-card{transition:opacity 0.15s,filter 0.15s;}
 .count-card.dim{opacity:0.32;filter:grayscale(70%);}
+.counting-box.solo{display:flex;justify-content:center;}
+.counting-box.solo .count-card{width:104px;}
 .count-card .cnt-name{display:block;font-size:11.5px;font-weight:700;letter-spacing:3px;color:#2c2015;
   margin:9px 0 5px;font-family:'Song Myung',serif;}
 .count-card .cnt-num{font-size:22px;font-weight:700;line-height:1;}
@@ -662,19 +664,26 @@ function saveSeats(){safeStorage.setItem('starcrossed_seats_v1',JSON.stringify(s
 const ROLE_KEYS = {tb:['jeongdonghwa','yangjiwon','leeseojun'],mc:['kimkyungsoo','kimchanho','shinjuhyup','leeseonwoo'],pl:['jeongsangyun','josungyun']};
 const ALL_KEYS = [].concat(ROLE_KEYS.tb,ROLE_KEYS.mc,ROLE_KEYS.pl);
 
+/* 한 역에서 배우 1명만 선택했을 때만 카운팅을 좁힘. 2명 이상 선택은 전체와 동일하게 카운팅 */
+function effSel(){
+  const e={tb:[],mc:[],pl:[]};
+  ROLE_ATTRS.forEach(a=>{ if(sel[a].length===1) e[a]=sel[a].slice(); });
+  return e;
+}
 function updateCounting(){
   const cnt={}, totCnt={};
   ALL_KEYS.forEach(k=>{cnt[k]=0;totCnt[k]=0;});
   let total=0, totTotal=0;
-  const isAll=isAllEmpty(sel);
+  const es=effSel();
+  const isAll=isAllEmpty(es);
 
   document.querySelectorAll('.row[data-sid]').forEach(r=>{
     const sid=r.dataset.sid; if(!SHOW_INFO[sid])return;
     const info=SHOW_INFO[sid];
     if(!isAll){
-      if(sel.tb.length && !sel.tb.includes(info.tb))return;
-      if(sel.mc.length && !sel.mc.includes(info.mc))return;
-      if(sel.pl.length && !sel.pl.includes(info.pl))return;
+      if(es.tb.length && !es.tb.includes(info.tb))return;
+      if(es.mc.length && !es.mc.includes(info.mc))return;
+      if(es.pl.length && !es.pl.includes(info.pl))return;
     }
     totCnt[info.tb]=(totCnt[info.tb]||0)+1;
     totCnt[info.mc]=(totCnt[info.mc]||0)+1;
@@ -686,9 +695,9 @@ function updateCounting(){
     if((showSeats[sid]||[]).length===0||!SHOW_INFO[sid])return;
     const info=SHOW_INFO[sid];
     if(!isAll){
-      if(sel.tb.length && !sel.tb.includes(info.tb))return;
-      if(sel.mc.length && !sel.mc.includes(info.mc))return;
-      if(sel.pl.length && !sel.pl.includes(info.pl))return;
+      if(es.tb.length && !es.tb.includes(info.tb))return;
+      if(es.mc.length && !es.mc.includes(info.mc))return;
+      if(es.pl.length && !es.pl.includes(info.pl))return;
     }
     cnt[info.tb]=(cnt[info.tb]||0)+1;
     cnt[info.mc]=(cnt[info.mc]||0)+1;
@@ -990,13 +999,17 @@ function applyFilter(){
 function updateCountingDim(){
   ROLE_ATTRS.forEach(attr=>{
     const activeSet=sel[attr];
+    const solo=activeSet.length===1;
+    let box=null;
     ROLE_KEYS[attr].forEach(key=>{
       const numEl=document.getElementById('cnt-'+key);
       const card=numEl ? numEl.closest('.count-card') : null;
       if(!card) return;
-      if(activeSet.length && !activeSet.includes(key)) card.classList.add('dim');
-      else card.classList.remove('dim');
+      box=card.parentElement;
+      card.classList.remove('dim');
+      card.style.display=(solo && !activeSet.includes(key)) ? 'none' : '';
     });
+    if(box) box.classList.toggle('solo',solo);
   });
 }
 

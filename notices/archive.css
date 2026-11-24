@@ -52,3 +52,13 @@ body.np-on .content:not(#np){display:none!important}
 .np-lb div{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 .np-lb button,.np-lb a{background:#fff;color:#151515;border:0;border-radius:999px;padding:10px 18px;font:700 14px 'Noto Sans KR',sans-serif;cursor:pointer;text-decoration:none;min-height:44px;display:inline-flex;align-items:center}
 @media(max-width:560px){#np .np-n{grid-template-columns:1fr;gap:6px}#np .np-d{display:flex;align-items:baseline;gap:8px;text-align:left}#np .np-d span{margin:0}#np .np-ph{height:150px}#np .np-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+body.np-on .np-main{display:none!important}
+#np.np-pad{padding:4px 6px 10px}
+/* 아가사: 와인 바탕 위 글씨는 밝게, 카드는 크림 종이 */
+.np-root[data-np=agatha] .np-head,.np-root[data-np=agatha] .np-month,.np-root[data-np=agatha] .np-count,.np-root[data-np=agatha] .np-sub,.np-root[data-np=agatha] .np-note,.np-root[data-np=agatha] .np-empty{color:#f5e3ba!important}
+.np-root[data-np=agatha] .np-seg button,.np-tabs.np-root[data-np=agatha] button{background:rgba(54,9,12,.45);border-color:rgba(236,210,156,.45);color:#f5e3ba}
+.np-root[data-np=agatha] .np-seg button.on,.np-tabs.np-root[data-np=agatha] button[aria-selected=true]{background:#ecd29c;border-color:#ecd29c;color:#4d1013}
+.np-root[data-np=agatha] .np-n{box-shadow:0 0 0 1px #a8854c,0 6px 18px rgba(0,0,0,.35);border-color:transparent}
+.np-root[data-np=othello] .np-n{backdrop-filter:blur(2px)}
+#np[data-np=agatha] .np-seg button{background:rgba(54,9,12,.45);border-color:rgba(236,210,156,.45);color:#f5e3ba}
+#np[data-np=agatha] .np-seg button.on{background:#ecd29c;border-color:#ecd29c;color:#4d1013}

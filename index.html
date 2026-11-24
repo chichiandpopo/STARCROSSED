@@ -173,7 +173,7 @@ body{font-family:'Noto Sans KR',sans-serif;
 .count-card{width:100%;max-width:104px;text-align:center;background:none;border:none;box-shadow:none;padding:0;margin:0 auto;}
 .counting-box.grid3 .count-card,.counting-box.grid2 .count-card,.counting-box.grid4 .count-card{flex:none;min-width:0;max-width:104px;width:100%;}
 .count-card{transition:opacity 0.15s,filter 0.15s;}
-.count-card.dim{opacity:0.32;filter:grayscale(70%);}
+
 .counting-box.solo{display:flex;justify-content:center;}
 .counting-box.solo .count-card{width:104px;}
 .count-card .cnt-name{display:block;font-size:11.5px;font-weight:700;letter-spacing:3px;color:#2c2015;
@@ -284,6 +284,21 @@ body{font-family:'Noto Sans KR',sans-serif;
 .badge-jeongsangyun{background:#dcd4ed;color:#381f6b;}
 .badge-josungyun{background:#edd4eb;color:#6b1f64;}
 
+
+/* 페어 정산 (티켓형) */
+.sp-list{max-width:440px;margin:0 auto;display:grid;gap:7px;}
+.sp-cell{position:relative;display:flex;align-items:stretch;overflow:hidden;border:1.2px solid #c9a227;background:#fffaf0;border-radius:4px;}
+.sp-body{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:8px;padding:6px 8px;}
+.sp-p{text-align:left;font-size:13.5px;min-width:3.15em;}
+.sp-p small{display:block;font-size:6.5px;font-weight:800;letter-spacing:1.4px;color:#a8862f;margin-bottom:2px;font-family:'Noto Sans KR',sans-serif;white-space:nowrap;}
+.sp-p span{font-family:'Nanum Myeongjo',serif;font-weight:800;font-size:13.5px;color:#3a1418;white-space:nowrap;}
+.sp-dia{display:block;width:4px;height:4px;background:#c9a227;transform:rotate(45deg);flex-shrink:0;margin-top:9px;}
+.sp-stub{position:relative;flex:0 0 56px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-left:1.5px dashed rgba(201,162,39,.7);background:#7a1220;padding:4px 0;}
+.sp-stub::before,.sp-stub::after{content:'';position:absolute;left:-5px;width:8px;height:8px;border-radius:50%;background:#f4ead6;border:1px solid rgba(201,162,39,.7);}
+.sp-stub::before{top:-5px;}.sp-stub::after{bottom:-5px;}
+.sp-num{font-family:'Nanum Myeongjo',serif;font-style:italic;font-weight:800;font-size:21px;line-height:1;color:#f3dc9a;}
+.sp-tot{margin-top:1px;font-size:9px;font-weight:700;color:#e8cf8f;letter-spacing:.5px;}
+@media(max-width:380px){.sp-p{font-size:12.5px}.sp-p span{font-size:12.5px}.sp-body{gap:6px}.sp-stub{flex-basis:50px}}
 </style>
 <link rel="stylesheet" href="notices/archive.css">
 <script>/* 정산판 저장: 화면을 축소하면 얇은 선이 0px이 되어 이미지 저장이 실패하던 문제 방지 */
@@ -522,6 +537,8 @@ P.createPattern=function(img,rep){if(img&&('width' in img)&&(!img.width||!img.he
   <div id="seatMapInner"></div>
   <div class="seat-legend" id="seatLegend"><span style="font-size:11px;color:#8a6d4c;">좌석을 입력하면 여기에 표시됩니다</span></div>
 </div>
+<div class="cgl" id="pairHead" style="display:none;margin-top:26px">페어</div>
+<div class="sp-list" id="pairList" style="display:none"></div>
 </div>
 
 <div style="max-width:720px;margin:16px auto 4px;display:flex;gap:6px;justify-content:center;flex-wrap:wrap;">
@@ -734,6 +751,27 @@ function updateCounting(){
   });
   const totalEl=document.getElementById('cnt-total'); if(totalEl) totalEl.textContent=total;
   const totTotalEl=document.getElementById('tot-total'); if(totTotalEl) totTotalEl.textContent='/'+totTotal;
+  renderPairs(info=>isAll||((!es.tb.length||es.tb.includes(info.tb))&&(!es.mc.length||es.mc.includes(info.mc))&&(!es.pl.length||es.pl.includes(info.pl))));
+}
+
+/* ================= PAIR (페어 정산) ================= */
+function renderPairs(match){
+  const R=[['tb','TYBALT'],['mc','MERCUTIO'],['pl','PLAYER']];
+  const NM=ACTOR;
+  const c={},t={};
+  document.querySelectorAll('.row[data-sid]').forEach(r=>{const i=SHOW_INFO[r.dataset.sid];if(!i||!match(i))return;
+    if(R.some(x=>!NM[i[x[0]]]))return;const k=R.map(x=>i[x[0]]).join('|');t[k]=(t[k]||0)+1;});
+  Object.keys(showSeats).forEach(sid=>{const i=SHOW_INFO[sid];if(!i||!(showSeats[sid]||[]).length||!match(i))return;
+    const k=R.map(x=>i[x[0]]).join('|');if(k in t)c[k]=(c[k]||0)+1;});
+  const ORD=[ROLE_KEYS.tb,ROLE_KEYS.mc,ROLE_KEYS.pl];
+  const ok=k=>k.split('|').map((x,j)=>{const n=(ORD[j]||[]).indexOf(x);return String(n<0?99:n).padStart(2,'0')}).join('');
+  const keys=Object.keys(c).sort((a,b)=>(c[b]-c[a])||(ok(a)<ok(b)?-1:1));
+  const list=document.getElementById('pairList'),head=document.getElementById('pairHead');
+  if(!list)return;
+  list.innerHTML=keys.map(k=>{const p=k.split('|');
+    return '<div class="sp-cell"><div class="sp-body">'+p.map((a,j)=>(j?'<i class="sp-dia"></i>':'')+'<div class="sp-p"><small>'+R[j][1]+'</small><span>'+NM[a]+'</span></div>').join('')+
+      '</div><div class="sp-stub"><div class="sp-num">'+c[k]+'</div><div class="sp-tot">/'+t[k]+'</div></div></div>';}).join('');
+  list.style.display=keys.length?'':'none';if(head)head.style.display=keys.length?'':'none';
 }
 
 /* ================= SEAT MAP RENDER ================= */
